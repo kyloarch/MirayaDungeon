@@ -1,0 +1,160 @@
+/*
+ * Copyright (C) 2012-2013 Frank Baumann; 2015-2026 Daniel Saukel
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+package me.kylofz.miraya.dungeon.reward;
+
+import me.kylofz.miraya.dungeon.DungeonsXL;
+import me.kylofz.miraya.dungeon.api.player.GlobalPlayer;
+import me.kylofz.miraya.dungeon.config.DMessage;
+import me.kylofz.miraya.dungeon.player.DPermission;
+import me.kylofz.miraya.dungeon.player.DPlayerListener;
+import me.kylofz.miraya.dungeon.util.ContainerAdapter;
+import me.kylofz.miraya.dungeon.world.DGameWorld;
+import me.kylofz.miraya.dungeon.world.block.RewardChest;
+import me.kylofz.miraya.gui.PaginatedInventoryGUI;
+import me.kylofz.miraya.gui.component.InventoryButton;
+import me.kylofz.miraya.gui.layout.PaginatedFlowInventoryLayout;
+import me.kylofz.miraya.gui.layout.PaginatedInventoryLayout.PaginationButtonPosition;
+import me.kylofz.miraya.item.VanillaItem;
+import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.block.Block;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.InventoryOpenEvent;
+import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryView;
+import org.bukkit.inventory.ItemStack;
+
+/**
+ * @author Frank Baumann, Daniel Saukel
+ */
+public class RewardListener implements Listener {
+
+    private DungeonsXL plugin;
+
+    public RewardListener(DungeonsXL plugin) {
+        this.plugin = plugin;
+    }
+
+    /*@EventHandler
+    public void onInventoryClose(InventoryCloseEvent event) {
+        if (!(event.getPlayer() instanceof Player)) {
+            return;
+        }
+        Player player = (Player) event.getPlayer();
+
+        for (DLootInventory inventory : plugin.getDLootInventories()) {
+            if (PageGUI.getByInventory() != inventory.getInventory()) {
+                continue;
+            }
+
+            if (System.currentTimeMillis() - inventory.getTime() <= 500) {
+                continue;
+            }
+
+            for (ItemStack istack : inventory.getInventory().getContents()) {
+                if (istack != null) {
+                    player.getWorld().dropItem(player.getLocation(), istack);
+                }
+            }
+
+            plugin.getDLootInventories().remove(inventory);
+        }
+    }*/
+    @EventHandler
+    public void onInventoryOpen(InventoryOpenEvent event) {
+        if (!(event.getPlayer() instanceof Player)) {
+            return;
+        }
+
+        InventoryView inventory = event.getView();
+
+        DGameWorld gameWorld = (DGameWorld) plugin.getGameWorld(event.getPlayer().getWorld());
+
+        if (gameWorld == null) {
+            return;
+        }
+
+        if (!(ContainerAdapter.isValidContainer(inventory.getTopInventory()))) {
+            return;
+        }
+
+        for (RewardChest rewardChest : gameWorld.getRewardChests()) {
+            if (!rewardChest.getBlock().equals(ContainerAdapter.getHolderBlock(inventory.getTopInventory().getHolder()))) {
+                continue;
+            }
+
+            rewardChest.onOpen((Player) event.getPlayer());
+            event.setCancelled(true);
+            break;
+        }
+
+        if (!plugin.getMainConfig().getOpenInventories() && !DPermission.hasPermission(event.getPlayer(), DPermission.INSECURE)) {
+            World world = event.getPlayer().getWorld();
+            if (event.getInventory().getType() != InventoryType.CREATIVE && plugin.getEditWorld(world) != null) {
+                event.setCancelled(true);
+            }
+        }
+    }
+
+    @EventHandler
+    public void onPlayerMove(PlayerMoveEvent event) {
+        Player player = event.getPlayer();
+        if (DPlayerListener.isCitizensNPC(player)) {
+            return;
+        }
+        GlobalPlayer dPlayer = plugin.getPlayerCache().get(player);
+        World world = player.getWorld();
+        Location location = player.getLocation();
+        if (plugin.getInstanceWorld(world) != null) {
+            return;
+        }
+        Block block = location.getBlock();
+        if (dPlayer.hasRewardItemsLeft() && !VanillaItem.NETHER_PORTAL.is(block.getRelative(0, 1, 0)) && !VanillaItem.NETHER_PORTAL.is(block.getRelative(0, -1, 0))
+                && !VanillaItem.NETHER_PORTAL.is(block.getRelative(1, 0, 0)) && !VanillaItem.NETHER_PORTAL.is(block.getRelative(-1, 0, 0))
+                && !VanillaItem.NETHER_PORTAL.is(block.getRelative(0, 0, 1)) && !VanillaItem.NETHER_PORTAL.is(block.getRelative(0, 0, -1))) {
+            PaginatedInventoryGUI lootInventory = new PaginatedInventoryGUI(DMessage.PLAYER_TREASURES.getMessage());
+            PaginatedFlowInventoryLayout layout = new PaginatedFlowInventoryLayout(lootInventory, 54, PaginationButtonPosition.BOTTOM);
+            layout.setSwitchButtonLinePlaceholdersEnabled(true);
+            lootInventory.setCloseListener(e -> {
+                for (Inventory inventory : lootInventory.getOpenedInventories()) {
+                    for (int i = 0; i < 45; i++) {
+                        ItemStack item = inventory.getItem(i);
+                        if (item != null) {
+                            world.dropItem(location, item);
+                        }
+                    }
+                }
+            });
+            lootInventory.setLayout(layout);
+            lootInventory.register();
+            for (ItemStack item : dPlayer.getRewardItems()) {
+                if (item != null) {
+                    InventoryButton button = new InventoryButton(item);
+                    button.setStealable(true);
+                    lootInventory.add(button);
+                }
+            }
+            lootInventory.open(player);
+            dPlayer.setRewardItems(null);
+        }
+    }
+
+}

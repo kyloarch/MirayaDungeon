@@ -1,0 +1,102 @@
+/*
+ * Copyright (C) 2012-2013 Frank Baumann; 2015-2026 Daniel Saukel
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+package me.kylofz.miraya.dungeon.trigger;
+
+import me.kylofz.miraya.dungeon.DungeonsXL;
+import me.kylofz.miraya.dungeon.api.world.GameWorld;
+import me.kylofz.miraya.dungeon.player.DPlayerListener;
+import me.kylofz.miraya.item.ExItem;
+import me.kylofz.miraya.item.VanillaItem;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
+import org.bukkit.event.block.BlockRedstoneEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.BookMeta;
+import org.bukkit.scheduler.BukkitRunnable;
+
+/**
+ * @author Milan Albrecht, Daniel Saukel
+ */
+public class TriggerListener implements Listener {
+
+    private DungeonsXL plugin;
+
+    public TriggerListener(DungeonsXL plugin) {
+        this.plugin = plugin;
+    }
+
+    @EventHandler
+    public void onBlockRedstone(final BlockRedstoneEvent event) {
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                GameWorld gameWorld = plugin.getGameWorld(event.getBlock().getWorld());
+                if (gameWorld != null) {
+                    RedstoneTrigger.updateAll(gameWorld);
+                }
+            }
+        }.runTaskLater(plugin, 1L);
+    }
+
+    @EventHandler
+    public void onPlayerInteract(PlayerInteractEvent event) {
+        if (event.getAction() != Action.RIGHT_CLICK_BLOCK && event.getAction() != Action.RIGHT_CLICK_AIR) {
+            return;
+        }
+        Player player = event.getPlayer();
+        if (DPlayerListener.isCitizensNPC(player)) {
+            return;
+        }
+        GameWorld gameWorld = plugin.getGameWorld(player.getWorld());
+        if (gameWorld == null) {
+            return;
+        }
+
+        ItemStack item = event.getItem();
+        if (item == null) {
+            return;
+        }
+
+        ExItem exItem = plugin.getXLib().getExItem(item);
+        String name = null;
+        if (item.hasItemMeta()) {
+            if (item.getItemMeta().hasDisplayName()) {
+                name = item.getItemMeta().getDisplayName();
+
+            } else if (VanillaItem.WRITTEN_BOOK.is(item) || VanillaItem.WRITABLE_BOOK.is(item)) {
+                if (item.getItemMeta() instanceof BookMeta) {
+                    BookMeta meta = (BookMeta) item.getItemMeta();
+                    if (meta.hasTitle()) {
+                        name = meta.getTitle();
+                    }
+                }
+            }
+        }
+        if (name == null) {
+            name = plugin.getXLib().getExItem(item).getName();
+        }
+
+        UseItemTrigger trigger = UseItemTrigger.getByItemOrName(exItem, name, gameWorld);
+        if (trigger != null) {
+            trigger.trigger(true, player);
+        }
+    }
+
+}

@@ -1,0 +1,116 @@
+/*
+ * Copyright (C) 2012-2013 Frank Baumann; 2015-2026 Daniel Saukel
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+package me.kylofz.miraya.dungeon.sign.passive;
+
+import me.kylofz.miraya.dungeon.api.DungeonsAPI;
+import me.kylofz.miraya.dungeon.api.sign.DungeonSign;
+import me.kylofz.miraya.dungeon.api.sign.Passive;
+import me.kylofz.miraya.dungeon.api.trigger.LogicalExpression;
+import me.kylofz.miraya.dungeon.api.trigger.Trigger;
+import me.kylofz.miraya.dungeon.api.world.InstanceWorld;
+import me.kylofz.miraya.dungeon.player.DPermission;
+import me.kylofz.miraya.dungeon.trigger.InteractTrigger;
+import me.kylofz.miraya.util.NumberUtil;
+import java.util.HashSet;
+import java.util.Set;
+import org.bukkit.block.Sign;
+import org.bukkit.scheduler.BukkitRunnable;
+
+/**
+ * @author Milan Albrecht, Daniel Saukel
+ */
+public class InteractSign extends Passive {
+
+    private int id = 0;
+
+    public InteractSign(DungeonsAPI api, Sign sign, String[] lines, InstanceWorld instance) {
+        super(api, sign, lines, instance);
+        id = NumberUtil.parseInt(lines[1]);
+    }
+
+    @Override
+    public Trigger getDefaultTrigger() {
+        return new InteractTrigger(api, this, LogicalExpression.parse("I" + id), id);
+    }
+
+    @Override
+    public String getName() {
+        return "Interact";
+    }
+
+    @Override
+    public String getBuildPermission() {
+        return DPermission.SIGN.getNode() + ".interact";
+    }
+
+    @Override
+    public boolean isOnDungeonInit() {
+        return true;
+    }
+
+    @Override
+    public boolean isProtected() {
+        return true;
+    }
+
+    @Override
+    public boolean isSetToAir() {
+        return false;
+    }
+
+    @Override
+    public boolean isTriggerLineDisabled() {
+        return true;
+    }
+
+    @Override
+    public boolean validate() {
+        Set<Integer> used = new HashSet<>();
+        for (DungeonSign dSign : getEditWorld().getDungeonSigns()) {
+            if (dSign instanceof InteractSign) {
+                used.add(((InteractSign) dSign).id);
+            }
+        }
+
+        if (getLine(1).isEmpty()) {
+            if (!used.isEmpty()) {
+                while (used.contains(id)) {
+                    id++;
+                }
+            }
+
+        } else {
+            id = NumberUtil.parseInt(getLine(1));
+            return !(id == 0 || used.contains(id));
+        }
+
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                getSign().setLine(1, String.valueOf(id));
+                getSign().update(true);
+            }
+        }.runTaskLater(api, 1L);
+        return true;
+    }
+
+    @Override
+    public void initialize() {
+        InteractTrigger.applyDefaultSignLayout(this, getLine(2), getLine(3));
+    }
+
+}

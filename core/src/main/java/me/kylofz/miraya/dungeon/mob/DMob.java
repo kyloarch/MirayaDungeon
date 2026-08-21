@@ -1,0 +1,130 @@
+/*
+ * Copyright (C) 2012-2013 Frank Baumann; 2015-2026 Daniel Saukel
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+package me.kylofz.miraya.dungeon.mob;
+
+import me.kylofz.miraya.dungeon.api.dungeon.GameRule;
+import me.kylofz.miraya.dungeon.api.event.mob.DungeonMobSpawnEvent;
+import me.kylofz.miraya.dungeon.api.mob.DungeonMob;
+import me.kylofz.miraya.dungeon.api.mob.MobSet;
+import me.kylofz.miraya.dungeon.api.world.GameWorld;
+import me.kylofz.miraya.compatibility.Version;
+import me.kylofz.miraya.mob.ExMob;
+import me.kylofz.miraya.mob.VanillaMob;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.LivingEntity;
+
+/**
+ * @author Frank Baumann, Milan Albrecht, Daniel Saukel
+ */
+public class DMob implements DungeonMob {
+
+    private GameWorld gameWorld;
+
+    private LivingEntity entity;
+    private ExMob type;
+
+    private MobSet typeSet;
+    private Set<MobSet> mobSets;
+
+    public DMob(LivingEntity entity, GameWorld gameWorld, ExMob type, MobSet typeSet, Collection<MobSet> mobSets) {
+        this.gameWorld = gameWorld;
+        this.entity = entity;
+        this.type = type != null ? type : VanillaMob.get(entity.getType());
+
+        if (this.type.getSpecies().isAlive() && this.type != VanillaMob.ARMOR_STAND && this.type != VanillaMob.PLAYER
+                && !getDrops(type, gameWorld.getDungeon().getRules().getState(GameRule.MOB_ITEM_DROPS))) {
+            entity.getEquipment().setHelmetDropChance(0);
+            entity.getEquipment().setChestplateDropChance(0);
+            entity.getEquipment().setLeggingsDropChance(0);
+            entity.getEquipment().setBootsDropChance(0);
+            if (Version.isAtLeast(Version.MC1_9)) {
+                entity.getEquipment().setItemInMainHandDropChance(0);
+                entity.getEquipment().setItemInOffHandDropChance(0);
+            } else {
+                entity.getEquipment().setItemInHandDropChance(0);
+            }
+        }
+
+        DungeonMobSpawnEvent event = new DungeonMobSpawnEvent(this);
+        Bukkit.getPluginManager().callEvent(event);
+        gameWorld.addMob(this);
+        this.typeSet = typeSet;
+        this.mobSets = new HashSet<>();
+        this.mobSets.add(gameWorld.getAllMobSet());
+        this.mobSets.add(typeSet);
+        if (mobSets != null) {
+            this.mobSets.addAll(mobSets);
+        }
+    }
+
+    /* Getters */
+    @Override
+    public LivingEntity getEntity() {
+        return entity;
+    }
+
+    @Override
+    public ExMob getType() {
+        return type;
+    }
+
+    @Override
+    public MobSet getTypeMobSet() {
+        return typeSet;
+    }
+
+    @Override
+    public Collection<MobSet> getMobSets() {
+        return new HashSet<>(mobSets);
+    }
+
+    @Override
+    public boolean addMobSet(MobSet mobSet) {
+        if (!gameWorld.getMobSets().contains(mobSet)) {
+            throw new IllegalArgumentException("MobSet not registered for GameWorld");
+        }
+        return mobSets.add(mobSet);
+    }
+
+    @Override
+    public boolean removeMobSet(MobSet mobSet) {
+        return mobSets.remove(mobSet);
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "{type=" + type + "}";
+    }
+
+    /* Util */
+    public static boolean getDrops(ExMob type, Object drops) {
+        if (drops instanceof Boolean) {
+            return (Boolean) drops;
+        } else if (drops instanceof Set) {
+            for (ExMob whitelisted : (Set<ExMob>) drops) {
+                if (type.isSubsumableUnder(whitelisted)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+}

@@ -1,0 +1,140 @@
+/*
+ * Copyright (C) 2012-2013 Frank Baumann; 2015-2026 Daniel Saukel
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+package me.kylofz.miraya.dungeon.sign.rocker;
+
+import me.kylofz.miraya.dungeon.api.DungeonsAPI;
+import me.kylofz.miraya.dungeon.api.sign.DungeonSign;
+import me.kylofz.miraya.dungeon.api.sign.Rocker;
+import me.kylofz.miraya.dungeon.api.world.InstanceWorld;
+import me.kylofz.miraya.dungeon.player.DPermission;
+import me.kylofz.miraya.dungeon.trigger.SignTrigger;
+import me.kylofz.miraya.util.NumberUtil;
+import java.util.HashSet;
+import java.util.Set;
+import org.bukkit.block.Sign;
+import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
+
+/**
+ * @author Frank Baumann, Milan Albrecht, Daniel Saukel
+ */
+public class TriggerSign extends Rocker {
+
+    private int id = 0;
+
+    public TriggerSign(DungeonsAPI api, Sign sign, String[] lines, InstanceWorld instance) {
+        super(api, sign, lines, instance);
+    }
+
+    @Override
+    public String getName() {
+        return "Trigger";
+    }
+
+    @Override
+    public String getBuildPermission() {
+        return DPermission.SIGN.getNode() + ".trigger";
+    }
+
+    @Override
+    public boolean isOnDungeonInit() {
+        return true;
+    }
+
+    @Override
+    public boolean isProtected() {
+        return false;
+    }
+
+    @Override
+    public boolean isSetToAir() {
+        return true;
+    }
+
+    @Override
+    public boolean validate() {
+        Set<Integer> used = new HashSet<>();
+        for (DungeonSign dSign : getEditWorld().getDungeonSigns()) {
+            if (dSign instanceof TriggerSign) {
+                used.add(((TriggerSign) dSign).id);
+            }
+        }
+
+        if (getLine(1).isEmpty()) {
+            if (!used.isEmpty()) {
+                while (used.contains(id)) {
+                    id++;
+                }
+            }
+
+        } else {
+            id = NumberUtil.parseInt(getLine(1));
+            return !(id == 0 || used.contains(id));
+        }
+
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                getSign().setLine(1, String.valueOf(id));
+                getSign().update(true);
+            }
+        }.runTaskLater(api, 1L);
+        return true;
+    }
+
+    @Override
+    public void initialize() {
+        id = NumberUtil.parseInt(getLine(1), 1);
+    }
+
+    @Override
+    public void activate() {
+        SignTrigger trigger = SignTrigger.getById(id, getGameWorld());
+        if (trigger != null) {
+            trigger.trigger(true, null);
+        }
+    }
+
+    @Override
+    public boolean activate(Player player) {
+        SignTrigger trigger = SignTrigger.getById(id, getGameWorld());
+        if (trigger == null) {
+            return false;
+        }
+        trigger.trigger(true, player);
+        return true;
+    }
+
+    @Override
+    public void deactivate() {
+        SignTrigger trigger = SignTrigger.getById(id, getGameWorld());
+        if (trigger != null) {
+            trigger.trigger(false, null);
+        }
+    }
+
+    @Override
+    public boolean deactivate(Player player) {
+        SignTrigger trigger = SignTrigger.getById(id, getGameWorld());
+        if (trigger == null) {
+            return false;
+        }
+        trigger.trigger(false, player);
+        return true;
+    }
+
+}

@@ -1,5 +1,5 @@
 name: MirayaDungeon
-main: de.erethon.dungeonsxl.DungeonsXL
+main: me.kylofz.miraya.dungeon.DungeonsXL
 version: ${project.parent.version}${buildNo}
 authors: [kylofz, Frank Baumann, Milan Albrecht, Tobias Schmitz, Daniel Saukel]
 description: ${project.parent.description}

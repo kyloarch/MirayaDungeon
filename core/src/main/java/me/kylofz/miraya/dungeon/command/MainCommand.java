@@ -1,0 +1,70 @@
+/*
+ * Copyright (C) 2012-2013 Frank Baumann; 2015-2026 Daniel Saukel
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+package me.kylofz.miraya.dungeon.command;
+
+import me.kylofz.miraya.dungeon.DungeonsXL;
+import me.kylofz.miraya.dungeon.config.DMessage;
+import me.kylofz.miraya.dungeon.player.DPermission;
+import static me.kylofz.miraya.chat.FatLetter.*;
+import me.kylofz.miraya.chat.MessageUtil;
+import me.kylofz.miraya.compatibility.Version;
+import org.bukkit.Bukkit;
+import org.bukkit.command.CommandSender;
+import org.bukkit.plugin.PluginManager;
+
+/**
+ * @author Daniel Saukel
+ */
+public class MainCommand extends DCommand {
+
+    public MainCommand(DungeonsXL plugin) {
+        super(plugin);
+        setCommand("main");
+        setHelp(DMessage.CMD_MAIN_HELP.getMessage());
+        setPermission(DPermission.MAIN.getNode());
+        setPlayerCommand(true);
+        setConsoleCommand(true);
+    }
+
+    @Override
+    public void onExecute(String[] args, CommandSender sender) {
+        PluginManager plugins = Bukkit.getServer().getPluginManager();
+
+        int maps = DungeonsXL.MAPS.listFiles().length - 1;
+        int loaded = plugin.getInstanceCache().size();
+        int players = dPlayers.getAllInstancePlayers().size();
+        String internals = Version.get().getRelocationTarget();
+        String vault = "";
+        if (plugins.getPlugin("Vault") != null) {
+            vault = plugins.getPlugin("Vault").getDescription().getVersion();
+        }
+        String xlib = plugins.getPlugin("MirayaAPI-Runtime").getDescription().getVersion();
+
+        MessageUtil.sendCenteredMessage(sender, "&4" + D[0] + "&f" + X[0] + L[0]);
+        MessageUtil.sendCenteredMessage(sender, "&4" + D[1] + "&f" + X[1] + L[1]);
+        MessageUtil.sendCenteredMessage(sender, "&4" + D[2] + "&f" + X[2] + L[2]);
+        MessageUtil.sendCenteredMessage(sender, "&4" + D[3] + "&f" + X[3] + L[3]);
+        MessageUtil.sendCenteredMessage(sender, "&4" + D[4] + "&f" + X[4] + L[4]);
+        MessageUtil.sendCenteredMessage(sender, "&b&l###### " + DMessage.CMD_MAIN_WELCOME.getMessage() + "&7 v" + plugin.getDescription().getVersion() + " &b&l######");
+        MessageUtil.sendCenteredMessage(sender, DMessage.CMD_MAIN_LOADED.getMessage(String.valueOf(maps), String.valueOf(loaded), String.valueOf(players)));
+        MessageUtil.sendCenteredMessage(sender, DMessage.CMD_MAIN_COMPATIBILITY.getMessage(internals, vault, xlib));
+        MessageUtil.sendCenteredMessage(sender, DMessage.CMD_MAIN_HELP_INFO.getMessage());
+        MessageUtil.sendCenteredMessage(sender, "&7\u00a92012-'13 Frank Baumann; '15-'26 Daniel Saukel & contributors.");
+        MessageUtil.sendCenteredMessage(sender, "&7Licensed under GPLv3.");
+    }
+
+}

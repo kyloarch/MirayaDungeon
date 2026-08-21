@@ -1,5 +1,5 @@
 name: DungeonsXXL
-main: de.erethon.dungeonsxxl.DungeonsXXL
+main: me.kylofz.miraya.dungeon.xxl.DungeonsXXL
 version: ${project.version}${buildNo}
 author: Daniel Saukel
 description: ${project.description}
