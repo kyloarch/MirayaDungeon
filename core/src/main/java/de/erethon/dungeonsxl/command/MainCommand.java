@@ -52,7 +52,7 @@ public class MainCommand extends DCommand {
         if (plugins.getPlugin("Vault") != null) {
             vault = plugins.getPlugin("Vault").getDescription().getVersion();
         }
-        String xlib = plugins.getPlugin("XLib-Runtime").getDescription().getVersion();
+        String xlib = plugins.getPlugin("MirayaAPI-Runtime").getDescription().getVersion();
 
         MessageUtil.sendCenteredMessage(sender, "&4" + D[0] + "&f" + X[0] + L[0]);
         MessageUtil.sendCenteredMessage(sender, "&4" + D[1] + "&f" + X[1] + L[1]);

@@ -19,7 +19,7 @@ package de.erethon.dungeonsxl.util;
 import de.erethon.dungeonsxl.DungeonsXL;
 import de.erethon.xlib.compatibility.Version;
 import de.erethon.xlib.plugin.PluginMeta;
-import de.erethon.xlib.spiget.comparator.VersionComparator;
+import org.inventivetalent.update.spiget.comparator.VersionComparator;
 import java.io.IOException;
 import java.util.Properties;
 import java.util.function.Predicate;
@@ -33,7 +33,7 @@ import org.bukkit.plugin.Plugin;
  */
 public enum DependencyVersion {
 
-    XLIB("XLib-Runtime", getProperties().getProperty("dependencyVersion.xlib")),
+    XLIB("MirayaAPI-Runtime", getProperties().getProperty("dependencyVersion.xlib")),
     BOSSSHOP("BossShop", getProperties().getProperty("dependencyVersion.bossshop")),
     CITIZENS("Citizens", getProperties().getProperty("dependencyVersion.citizens")),
     HOLOGRAPHIC_DISPLAYS("HolographicDisplays", getProperties().getProperty("dependencyVersion.holographicdisplays")),

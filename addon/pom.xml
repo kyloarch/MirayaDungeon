@@ -1,15 +1,15 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>de.erethon.dungeonsxl</groupId>
-    <artifactId>dungeonsxl-addon</artifactId>
+    <groupId>me.kylofz.miraya</groupId>
+    <artifactId>mirayadungeon-addon</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>DungeonsXXL</name>
     <url>https://dre2n.github.io</url>
     <description>Create BETTER custom dungeons and adventure maps with ease!</description>
     <parent>
-        <groupId>de.erethon.dungeonsxl</groupId>
-        <artifactId>dungeonsxl-parent</artifactId>
+        <groupId>me.kylofz.miraya</groupId>
+        <artifactId>mirayadungeon-parent</artifactId>
         <version>0.19</version>
     </parent>
     <modules>
@@ -18,8 +18,8 @@
     </modules>
     <dependencies>
         <dependency>
-            <groupId>de.erethon.dungeonsxl</groupId>
-            <artifactId>dungeonsxl-dist</artifactId>
+            <groupId>me.kylofz.miraya</groupId>
+            <artifactId>mirayadungeon-dist</artifactId>
             <version>0.19</version>
             <scope>provided</scope>
         </dependency>

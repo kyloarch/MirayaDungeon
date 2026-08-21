@@ -85,7 +85,7 @@ public class ReloadCommand extends DCommand {
         if (plugins.getPlugin("Vault") != null) {
             vault = plugins.getPlugin("Vault").getDescription().getVersion();
         }
-        String xlib = plugins.getPlugin("XLib-Runtime").getDescription().getVersion();
+        String xlib = plugins.getPlugin("MirayaAPI-Runtime").getDescription().getVersion();
 
         plugin.saveData();
         plugin.initFolders();

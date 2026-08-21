@@ -1,3 +1,13 @@
+# MirayaDungeon
+
+Fork of [DRE2N/DungeonsXL](https://github.com/DRE2N/DungeonsXL) — rebranded and modernized by **kylofz** for Paper 26.2 / Java 25. Licensed GPL-3.0, original by Frank Baumann, Milan Albrecht, Tobias Schmitz, Daniel Saukel (DRE2N).
+
+Requires [MirayaAPI](https://github.com/kyloarch/MirayaAPI) (`MirayaAPI-Runtime`).
+
+Command: `/mirayadungeon` (aliases `dxl`, `dungeon`, `dungeonsxl`).
+
+---
+
 ![DungeonsXL](https://erethon.de/resources/logos/DungeonsXL.png)
 
 [![Builds](https://erethon.de/resources/buttons/Builds.png)](http://erethon.de/repo/de/erethon/dungeonsxl/dungeonsxl-dist)

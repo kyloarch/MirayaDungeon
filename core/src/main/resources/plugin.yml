@@ -1,13 +1,13 @@
-name: ${project.parent.name}
+name: MirayaDungeon
 main: de.erethon.dungeonsxl.DungeonsXL
 version: ${project.parent.version}${buildNo}
-authors: [Frank Baumann, Milan Albrecht, Tobias Schmitz, Daniel Saukel]
+authors: [kylofz, Frank Baumann, Milan Albrecht, Tobias Schmitz, Daniel Saukel]
 description: ${project.parent.description}
 website: ${project.parent.url}
-depend: [XLib-Runtime]
+depend: [MirayaAPI-Runtime]
 softdepend: [CommandsXL, Vault, Citizens, CustomMobs, InsaneMobs, MythicMobs, HolographicDisplays, LWC, PlaceholderAPI, Parties]
 commands:
-  dungeonsxl:
-    description: Reference command for DungeonsXL.
-    aliases: [dxl,dungeon]
-api-version: 1.13
+  mirayadungeon:
+    description: Reference command for MirayaDungeon.
+    aliases: [dxl,dungeon,dungeonsxl]
+api-version: '26.2'

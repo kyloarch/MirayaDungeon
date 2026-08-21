@@ -1,12 +1,12 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>de.erethon.dungeonsxl</groupId>
-    <artifactId>dungeonsxl-dist</artifactId>
+    <groupId>me.kylofz.miraya</groupId>
+    <artifactId>mirayadungeon-dist</artifactId>
     <version>${project.parent.version}</version>
     <packaging>jar</packaging>
     <parent>
-        <groupId>de.erethon.dungeonsxl</groupId>
-        <artifactId>dungeonsxl-parent</artifactId>
+        <groupId>me.kylofz.miraya</groupId>
+        <artifactId>mirayadungeon-parent</artifactId>
         <version>0.19</version>
     </parent>
     <build>
@@ -25,7 +25,7 @@
                         <configuration>
                             <artifactSet>
                                 <includes>
-                                    <include>de.erethon.dungeonsxl:*</include>
+                                    <include>me.kylofz.miraya:*</include>
                                 </includes>
                             </artifactSet>
                         </configuration>
@@ -36,37 +36,37 @@
     </build>
     <dependencies>
         <dependency>
-            <groupId>de.erethon.dungeonsxl</groupId>
+            <groupId>me.kylofz.miraya</groupId>
             <artifactId>dungeonsxl-adapter</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
-            <groupId>de.erethon.dungeonsxl</groupId>
-            <artifactId>dungeonsxl-api</artifactId>
+            <groupId>me.kylofz.miraya</groupId>
+            <artifactId>mirayadungeon-api</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
-            <groupId>de.erethon.dungeonsxl</groupId>
+            <groupId>me.kylofz.miraya</groupId>
             <artifactId>dungeonsxl-bukkit_blockdata</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
-            <groupId>de.erethon.dungeonsxl</groupId>
+            <groupId>me.kylofz.miraya</groupId>
             <artifactId>dungeonsxl-bukkit_magicvalues</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
-            <groupId>de.erethon.dungeonsxl</groupId>
-            <artifactId>dungeonsxl-core</artifactId>
+            <groupId>me.kylofz.miraya</groupId>
+            <artifactId>mirayadungeon-core</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
-            <groupId>de.erethon.dungeonsxl</groupId>
+            <groupId>me.kylofz.miraya</groupId>
             <artifactId>dungeonsxl-paper</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
-            <groupId>de.erethon.dungeonsxl</groupId>
+            <groupId>me.kylofz.miraya</groupId>
             <artifactId>dungeonsxl-spigot</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
