@@ -1,11 +1,11 @@
-name: MirayaDungeon
+name: ${project.parent.name}
 main: me.kylofz.miraya.dungeon.DungeonsXL
 version: ${project.parent.version}${buildNo}
 authors: [kylofz, Frank Baumann, Milan Albrecht, Tobias Schmitz, Daniel Saukel]
 description: ${project.parent.description}
 website: ${project.parent.url}
 depend: [MirayaAPI-Runtime]
-softdepend: [CommandsXL, Vault, Citizens, CustomMobs, InsaneMobs, MythicMobs, HolographicDisplays, LWC, PlaceholderAPI, Parties]
+softdepend: [Vault, MythicMobs, PlaceholderAPI, Parties, FancyNpcs, FancyHolograms, DecentHolograms]
 commands:
   mirayadungeon:
     description: Reference command for MirayaDungeon.

@@ -58,6 +58,7 @@ public class DCommandRegistry extends DRECommandRegistry {
     public SaveCommand save;
     public StatusCommand status;
     public TestCommand test;
+    public ShopCommand shop;
     public UninviteCommand uninvite;
 
     public DCommandRegistry(DungeonsXL plugin, PluginInit init) {
@@ -91,6 +92,7 @@ public class DCommandRegistry extends DRECommandRegistry {
         save = new SaveCommand(plugin);
         status = new StatusCommand(plugin);
         test = new TestCommand(plugin);
+        shop = new ShopCommand(plugin);
         uninvite = new UninviteCommand(plugin);
 
         addCommand(breakCmd);
@@ -119,6 +121,7 @@ public class DCommandRegistry extends DRECommandRegistry {
         addCommand(rename);
         addCommand(resourcePack);
         addCommand(save);
+        addCommand(shop);
         addCommand(status);
         addCommand(test);
         addCommand(uninvite);

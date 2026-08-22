@@ -1,0 +1,65 @@
+name: Build MirayaDungeon
+
+on:
+  push:
+    branches: [ master, main ]
+    tags: [ 'v*' ]
+  pull_request:
+    branches: [ master, main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Dungeon
+        uses: actions/checkout@v4
+        with:
+          path: MirayaDungeon
+
+      - name: Checkout API (dependency)
+        uses: actions/checkout@v4
+        with:
+          repository: kyloarch/MirayaAPI
+          ref: master
+          path: MirayaAPI
+
+      - name: Set up JDK 25
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: maven
+
+      - name: Install NMS stubs + build API into local Maven
+        run: |
+          cd MirayaAPI
+          java -jar mvnbt.jar --dir nmsstub --goal install --version 3.9.16
+          mvn clean install -DskipTests -q
+
+      - name: Build Dungeon
+        run: |
+          cd MirayaDungeon
+          mvn clean install -DskipTests -q
+
+      - name: Upload dist jar
+        uses: actions/upload-artifact@v4
+        with:
+          name: mirayadungeon-dist
+          path: MirayaDungeon/dist/target/mirayadungeon-dist-*.jar
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: mirayadungeon-dist
+
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: mirayadungeon-dist-*.jar

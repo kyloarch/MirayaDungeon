@@ -16,12 +16,11 @@
  */
 package me.kylofz.miraya.dungeon.sign.passive;
 
-import com.gmail.filoghost.holographicdisplays.api.Hologram;
-import com.gmail.filoghost.holographicdisplays.api.HologramsAPI;
 import me.kylofz.miraya.dungeon.api.DungeonsAPI;
 import me.kylofz.miraya.dungeon.api.dungeon.GameRule;
 import me.kylofz.miraya.dungeon.api.sign.Passive;
 import me.kylofz.miraya.dungeon.api.world.InstanceWorld;
+import me.kylofz.miraya.dungeon.hologram.HologramProviders;
 import me.kylofz.miraya.dungeon.player.DPermission;
 import me.kylofz.miraya.item.ExItem;
 import me.kylofz.miraya.util.NumberUtil;
@@ -29,14 +28,13 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.block.Sign;
-import org.bukkit.inventory.ItemStack;
 
 /**
- * @author Daniel Saukel
+ * @author Daniel Saukel, kylofz
  */
 public class HologramSign extends Passive {
 
-    private Hologram hologram;
+    private Object hologram;
 
     public HologramSign(DungeonsAPI api, Sign sign, String[] lines, InstanceWorld instance) {
         super(api, sign, lines, instance);
@@ -69,8 +67,8 @@ public class HologramSign extends Passive {
 
     @Override
     public boolean validate() {
-        if (Bukkit.getPluginManager().getPlugin("HolographicDisplays") == null) {
-            markAsErroneous("HolographicDisplays not enabled");
+        if (HologramProviders.get() == null) {
+            markAsErroneous("FancyHolograms or DecentHolograms not enabled");
             return false;
         }
         return true;
@@ -87,23 +85,26 @@ public class HologramSign extends Passive {
         Location location = getSign().getLocation();
         location = location.add(0.5, NumberUtil.parseDouble(getLine(2), 2.0), 0.5);
 
-        hologram = HologramsAPI.createHologram(api, location);
+        var provider = HologramProviders.get();
+        if (provider == null) {
+            markAsErroneous("No hologram provider");
+            return;
+        }
+
+        java.util.List<String> lines = new java.util.ArrayList<>();
         for (String line : holoLines) {
             if (line.startsWith("Item:")) {
                 String id = line.replace("Item:", "");
-                ItemStack item = null;
-
                 ExItem exItem = api.getXLib().getExItem(id);
                 if (exItem != null) {
-                    item = exItem.toItemStack();
+                    lines.add("[item] " + exItem.toString());
                 }
-
-                hologram.appendItemLine(item);
-
             } else {
-                hologram.appendTextLine(ChatColor.translateAlternateColorCodes('&', line));
+                lines.add(ChatColor.translateAlternateColorCodes('&', line));
             }
         }
+        hologram = provider.create("mirayadungeon_holosign_" + getSign().getLocation().getBlockX()
+                + "_" + getSign().getLocation().getBlockY() + "_" + getSign().getLocation().getBlockZ(), location, lines);
     }
 
 }

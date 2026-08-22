@@ -19,7 +19,7 @@ package me.kylofz.miraya.dungeon.util;
 import me.kylofz.miraya.dungeon.DungeonsXL;
 import me.kylofz.miraya.compatibility.Version;
 import me.kylofz.miraya.plugin.PluginMeta;
-import org.inventivetalent.update.spiget.comparator.VersionComparator;
+import me.kylofz.miraya.plugin.VersionComparator;
 import java.io.IOException;
 import java.util.Properties;
 import java.util.function.Predicate;
@@ -34,23 +34,12 @@ import org.bukkit.plugin.Plugin;
 public enum DependencyVersion {
 
     XLIB("MirayaAPI-Runtime", getProperties().getProperty("dependencyVersion.xlib")),
-    BOSSSHOP("BossShop", getProperties().getProperty("dependencyVersion.bossshop")),
-    CITIZENS("Citizens", getProperties().getProperty("dependencyVersion.citizens")),
-    HOLOGRAPHIC_DISPLAYS("HolographicDisplays", getProperties().getProperty("dependencyVersion.holographicdisplays")),
-    MODERN_LWC("LWC", "2.1.5-09ad392"),
+    DECENT_HOLOGRAMS("DecentHolograms", "2.8.8"),
+    FANCY_HOLOGRAMS("FancyHolograms", getProperties().getProperty("dependencyVersion.fancyholograms")),
+    FANCY_NPCS("FancyNpcs", getProperties().getProperty("dependencyVersion.fancynpcs")),
     PARTIES("Parties", getProperties().getProperty("dependencyVersion.parties")),
     PLACEHOLDER_API("PlaceholderAPI", getProperties().getProperty("dependencyVersion.placeholderapi")),
     VAULT("Vault", "1.7.3-b131"),
-    // Two public plugins share this name
-    CUSTOM_MOBS("CustomMobs", "4.17", s -> {
-        try {
-            Class.forName("de.hellfirepvp.CustomMobs");
-            return true;
-        } catch (ClassNotFoundException e) {
-            return false;
-        }
-    }),
-    INSANE_MOBS("InsaneMobs2", "3.0.1"),
     MYTHIC_MOBS("MythicMobs", "5.11.2-6a371d59");
 
     /**

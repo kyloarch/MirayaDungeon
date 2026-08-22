@@ -34,7 +34,7 @@ import me.kylofz.miraya.dungeon.api.trigger.TriggerListener;
 import me.kylofz.miraya.dungeon.api.trigger.TriggerTypeKey;
 import me.kylofz.miraya.dungeon.api.world.GameWorld;
 import me.kylofz.miraya.dungeon.dungeon.DDungeon;
-import me.kylofz.miraya.dungeon.mob.CitizensMobProvider;
+import me.kylofz.miraya.dungeon.mob.FancyNpcsMobProvider;
 import me.kylofz.miraya.dungeon.sign.button.ReadySign;
 import me.kylofz.miraya.dungeon.sign.passive.StartSign;
 import me.kylofz.miraya.dungeon.sign.windup.MobSign;
@@ -514,8 +514,9 @@ public class DGameWorld extends DInstanceWorld implements GameWorld {
             return;
         }
 
-        if (Bukkit.getPluginManager().getPlugin("Citizens") != null) {
-            ((CitizensMobProvider) plugin.getExternalMobProviderRegistry().get("CI")).removeSpawnedNPCs(getWorld());
+        if (Bukkit.getPluginManager().getPlugin("FancyNpcs") != null
+                && plugin.getExternalMobProviderRegistry().get("FN") instanceof FancyNpcsMobProvider fancyNpcsProvider) {
+            fancyNpcsProvider.removeSpawnedNPCs(getWorld());
         }
 
         kickAllPlayers();

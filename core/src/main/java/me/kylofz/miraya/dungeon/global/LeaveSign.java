@@ -21,7 +21,6 @@ import me.kylofz.miraya.dungeon.api.player.GamePlayer;
 import me.kylofz.miraya.dungeon.api.player.PlayerGroup;
 import me.kylofz.miraya.dungeon.config.DMessage;
 import me.kylofz.miraya.dungeon.util.BlockUtilCompat;
-import me.kylofz.miraya.dungeon.util.LWCUtil;
 import me.kylofz.miraya.chat.MessageUtil;
 import java.util.HashSet;
 import java.util.Set;
@@ -58,7 +57,6 @@ public class LeaveSign extends GlobalProtection {
             }
         }.runTaskLater(plugin, 1L);
 
-        LWCUtil.removeProtection(sign.getBlock());
     }
 
     public LeaveSign(DungeonsXL plugin, World world, int id, ConfigurationSection config) {
@@ -67,7 +65,6 @@ public class LeaveSign extends GlobalProtection {
         sign = world.getBlockAt(config.getInt("x"), config.getInt("y"), config.getInt("z"));
         setText();
 
-        LWCUtil.removeProtection(sign);
     }
 
     /* Getters and setters */

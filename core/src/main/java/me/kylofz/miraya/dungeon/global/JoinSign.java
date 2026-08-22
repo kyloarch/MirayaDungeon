@@ -19,7 +19,6 @@ package me.kylofz.miraya.dungeon.global;
 import me.kylofz.miraya.dungeon.DungeonsXL;
 import me.kylofz.miraya.dungeon.api.dungeon.Dungeon;
 import me.kylofz.miraya.dungeon.util.BlockUtilCompat;
-import me.kylofz.miraya.dungeon.util.LWCUtil;
 import java.util.HashSet;
 import java.util.Set;
 import org.bukkit.World;
@@ -208,7 +207,6 @@ public abstract class JoinSign extends GlobalProtection {
             verticalSigns--;
         }
 
-        LWCUtil.removeProtection(startSign);
     }
 
 }

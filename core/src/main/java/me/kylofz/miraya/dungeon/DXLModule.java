@@ -63,7 +63,6 @@ public class DXLModule implements DungeonModule {
         signRegistry.add("ACTIONBAR", ActionBarSign.class);
         signRegistry.add("BED", BedSign.class);
         signRegistry.add("BLOCK", BlockSign.class);
-        signRegistry.add("BOSSSHOP", BossShopSign.class);
         signRegistry.add("CHECKPOINT", CheckpointSign.class);
         signRegistry.add("CLASSES", ClassesSign.class);
         signRegistry.add("CMD", CommandSign.class);

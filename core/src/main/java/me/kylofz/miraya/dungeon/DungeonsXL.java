@@ -48,7 +48,12 @@ import me.kylofz.miraya.dungeon.config.MainConfig.BackupMode;
 import me.kylofz.miraya.dungeon.dungeon.DDungeon;
 import me.kylofz.miraya.dungeon.global.GlobalProtectionCache;
 import me.kylofz.miraya.dungeon.global.GlobalProtectionListener;
-import me.kylofz.miraya.dungeon.mob.CitizensMobProvider;
+import me.kylofz.miraya.dungeon.economy.CoinConfig;
+import me.kylofz.miraya.dungeon.economy.CoinListener;
+import me.kylofz.miraya.dungeon.economy.CoinManager;
+import me.kylofz.miraya.dungeon.economy.ShopConfig;
+import me.kylofz.miraya.dungeon.economy.ShopMenu;
+import me.kylofz.miraya.dungeon.mob.FancyNpcsMobProvider;
 import me.kylofz.miraya.dungeon.mob.CustomExternalMobProvider;
 import me.kylofz.miraya.dungeon.mob.DMob;
 import me.kylofz.miraya.dungeon.mob.DMobListener;
@@ -70,11 +75,9 @@ import me.kylofz.miraya.dungeon.sign.windup.CommandScript;
 import me.kylofz.miraya.dungeon.sign.windup.MobSign;
 import me.kylofz.miraya.dungeon.trigger.TriggerListener;
 import me.kylofz.miraya.dungeon.util.DependencyVersion;
-import me.kylofz.miraya.dungeon.util.LWCUtil;
 import me.kylofz.miraya.dungeon.util.PlaceholderUtil;
 import me.kylofz.miraya.dungeon.world.DEditWorld;
 import me.kylofz.miraya.dungeon.world.DWorldListener;
-import me.kylofz.miraya.dungeon.world.LWCIntegration;
 import me.kylofz.miraya.dungeon.world.WorldConfig;
 import me.kylofz.miraya.XLib;
 import me.kylofz.miraya.chat.MessageUtil;
@@ -96,6 +99,7 @@ import java.util.logging.Level;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.World;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -117,6 +121,13 @@ public class DungeonsXL extends JavaPlugin implements DungeonsAPI {
     private static DungeonsXL instance;
     private XLib xlib;
     private PluginInit init;
+
+    /* Economy */
+    private CoinManager coinManager;
+    private CoinConfig coinConfig;
+    private CoinListener coinListener;
+    private ShopMenu shopMenu;
+    private ShopConfig shopConfig;
 
     /* Util instances */
     public static final BlockAdapter BLOCK_ADAPTER = Version.isAtLeast(Version.MC1_13) ? new BlockAdapterBlockData() : new BlockAdapterMagicValues();
@@ -236,6 +247,24 @@ public class DungeonsXL extends JavaPlugin implements DungeonsAPI {
             registerGroupAdapter(new PartiesAdapter(this));
         }
         init.init(new DCommandRegistry(this, init), mainConfig.isUpdaterEnabled());
+
+        /* Economy: coins, shop, boss key */
+        coinManager = new CoinManager(getDataFolder());
+        File shopFile = new File(getDataFolder(), "shops.yml");
+        shopConfig = ShopConfig.load(shopFile);
+        File coinFile = new File(getDataFolder(), "coins.yml");
+        YamlConfiguration coinCfg = YamlConfiguration.loadConfiguration(coinFile);
+        coinConfig = CoinConfig.load(coinCfg);
+        try {
+            coinCfg.save(coinFile);
+        } catch (java.io.IOException exception) {
+            exception.printStackTrace();
+        }
+        coinListener = new CoinListener(this, coinManager, coinConfig);
+        getServer().getPluginManager().registerEvents(coinListener, this);
+        shopMenu = new ShopMenu(coinManager, shopConfig);
+        getServer().getPluginManager().registerEvents(shopMenu, this);
+
         loaded = true;
     }
 
@@ -250,6 +279,10 @@ public class DungeonsXL extends JavaPlugin implements DungeonsAPI {
         HandlerList.unregisterAll(this);
         getServer().getScheduler().cancelTasks(this);
         DPermission.unregister();
+        if (coinManager != null) {
+            coinManager.close();
+            coinManager = null;
+        }
     }
 
     public void initFolders() {
@@ -317,20 +350,16 @@ public class DungeonsXL extends JavaPlugin implements DungeonsAPI {
         protections.loadAll();
 
         /* Integrations */
-        if (LWCUtil.isLWCLoaded()) {
-            new LWCIntegration(this);
-        }
         // Mobs - Supported providers
         externalMobProviderRegistry = new Registry<>();
         for (ExternalMobPlugin externalMobPlugin : ExternalMobPlugin.values()) {
             externalMobProviderRegistry.add(externalMobPlugin.getIdentifier(), externalMobPlugin);
         }
-        if (getServer().getPluginManager().getPlugin("Citizens") != null) {
-            CitizensMobProvider citizensMobProvider = new CitizensMobProvider(this);
-            externalMobProviderRegistry.add("CI", citizensMobProvider);
-            getServer().getPluginManager().registerEvents(citizensMobProvider, this);
+        if (getServer().getPluginManager().getPlugin("FancyNpcs") != null) {
+            FancyNpcsMobProvider fancyNpcsMobProvider = new FancyNpcsMobProvider(this);
+            externalMobProviderRegistry.add("FN", fancyNpcsMobProvider);
         } else {
-            MessageUtil.log(this, "Could not find compatible Citizens plugin. The mob provider Citizens (\"CI\") will not get enabled...");
+            MessageUtil.log(this, "Could not find compatible FancyNpcs plugin. The mob provider FancyNpcs (\"FN\") will not get enabled...");
         }
         // Mobs - Custom providers
         for (Entry<String, Object> customExternalMobProvider : mainConfig.getExternalMobProviders().entrySet()) {
@@ -438,6 +467,26 @@ public class DungeonsXL extends JavaPlugin implements DungeonsAPI {
     @Override
     public XLib getXLib() {
         return xlib;
+    }
+
+    public CoinManager getCoinManager() {
+        return coinManager;
+    }
+
+    public CoinConfig getCoinConfig() {
+        return coinConfig;
+    }
+
+    public CoinListener getCoinListener() {
+        return coinListener;
+    }
+
+    public ShopMenu getShopMenu() {
+        return shopMenu;
+    }
+
+    public ShopConfig getShopConfig() {
+        return shopConfig;
     }
 
     @Override

@@ -27,6 +27,7 @@ import me.kylofz.miraya.dungeon.player.DGamePlayer;
 import me.kylofz.miraya.dungeon.player.DPermission;
 import me.kylofz.miraya.dungeon.trigger.InteractTrigger;
 import me.kylofz.miraya.chat.MessageUtil;
+import org.bukkit.ChatColor;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -94,10 +95,24 @@ public class EndSign extends Button {
             return true;
         }
 
+        // boss key gate: requires a Boss Key item to proceed
+        var plugin = (me.kylofz.miraya.dungeon.DungeonsXL) api;
+        var bossKey = plugin.getShopConfig().getBossKey();
+        if (bossKey.isEnabled() && !me.kylofz.miraya.dungeon.economy.BossKeyUtil.consumeBossKey(player, bossKey)) {
+            player.sendMessage(org.bukkit.ChatColor.RED + "You need a "
+                    + org.bukkit.ChatColor.GOLD + "Boss Key" + org.bukkit.ChatColor.RED
+                    + " to proceed! Buy one in the shop (" + ChatColor.YELLOW
+                    + "/mirayadungeon shop" + ChatColor.RED + ").");
+            return true;
+        }
+
         // TODO: Group with 2 players, player A finishs, player B leaves
         if (dPlayer.isFinished()) {
             return true;
         }
+
+        // floor clear coin reward (slow progression)
+        plugin.getCoinListener().onFloorClear(player);
 
         new BukkitRunnable() {
             @Override

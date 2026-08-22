@@ -16,30 +16,43 @@
  */
 package me.kylofz.miraya.dungeon.player;
 
-import com.gmail.filoghost.holographicdisplays.api.Hologram;
-import com.gmail.filoghost.holographicdisplays.api.HologramsAPI;
 import me.kylofz.miraya.dungeon.DungeonsXL;
+import me.kylofz.miraya.dungeon.hologram.HologramProviders;
 
 /**
- * @author Daniel Saukel
+ * Floating name tag above a player showing their group.
+ *
+ * @author Daniel Saukel, kylofz
  */
 public class DGroupTag {
 
     private DGamePlayer player;
-    private Hologram hologram;
+    private Object hologram;
+    private double yOffset = 3.5;
 
     public DGroupTag(DungeonsXL plugin, DGamePlayer player) {
         this.player = player;
         DGroup group = player.getGroup();
-        if (group != null) {
-            hologram = HologramsAPI.createHologram(plugin, player.getPlayer().getLocation().clone().add(0, 3.5, 0));
-            hologram.appendItemLine(group.getDColor().getWoolMaterial().toItemStack());
-            hologram.appendTextLine(group.getName());
+        if (group == null) {
+            return;
         }
+        var provider = HologramProviders.get();
+        if (provider == null) {
+            return;
+        }
+        String name = "mirayadungeon_grouptag_" + player.getPlayer().getUniqueId().toString().substring(0, 8);
+        hologram = provider.create(name, player.getPlayer().getLocation().clone().add(0, yOffset, 0),
+                java.util.List.of(group.getName()));
     }
 
     public void update() {
-        hologram.teleport(player.getPlayer().getLocation().clone().add(0, 3.5, 0));
+        if (hologram == null) {
+            return;
+        }
+        var provider = HologramProviders.get();
+        if (provider != null) {
+            provider.move(hologram, player.getPlayer().getLocation().clone().add(0, yOffset, 0));
+        }
     }
 
 }

@@ -22,7 +22,7 @@ import me.kylofz.miraya.dungeon.api.event.world.EditWorldUnloadEvent;
 import me.kylofz.miraya.dungeon.api.event.world.InstanceWorldPostUnloadEvent;
 import me.kylofz.miraya.dungeon.api.world.EditWorld;
 import me.kylofz.miraya.dungeon.dungeon.DDungeon;
-import me.kylofz.miraya.dungeon.mob.CitizensMobProvider;
+import me.kylofz.miraya.dungeon.mob.FancyNpcsMobProvider;
 import me.kylofz.miraya.dungeon.player.DEditPlayer;
 import me.kylofz.miraya.chat.MessageUtil;
 import me.kylofz.miraya.compatibility.Version;
@@ -162,8 +162,9 @@ public class DEditWorld extends DInstanceWorld implements EditWorld {
             return;
         }
 
-        if (Bukkit.getPluginManager().getPlugin("Citizens") != null) {
-            ((CitizensMobProvider) plugin.getExternalMobProviderRegistry().get("CI")).removeSpawnedNPCs(getWorld());
+        if (Bukkit.getPluginManager().getPlugin("FancyNpcs") != null
+                && plugin.getExternalMobProviderRegistry().get("FN") instanceof FancyNpcsMobProvider fancyNpcsProvider) {
+            fancyNpcsProvider.removeSpawnedNPCs(getWorld());
         }
 
         kickAllPlayers();
